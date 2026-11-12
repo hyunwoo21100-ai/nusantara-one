@@ -1,0 +1,31 @@
+name: Build NUSANTARA ONE APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract project
+        run: |
+          mkdir source
+          unzip -q N1_Android_Project_Source.zip -d source
+          find source -name gradlew
+
+      - name: Build APK
+        run: |
+          cd "$(dirname "$(find source -name gradlew | head -n 1)")"
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NUSANTARA-ONE-APK
+          path: source/**/app/build/outputs/apk/debug/*.apk
